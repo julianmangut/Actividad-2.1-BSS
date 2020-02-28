@@ -10,7 +10,7 @@ import java.io.*;
 
 public class RC4
 {
-    private final static int STATE_LENGTH = 256;
+    private final static int STATE_LENGTH = 256;    // Tamaño de la matriz
 
     /*
      * variables to hold the state of the RC4 engine
@@ -51,7 +51,7 @@ public class RC4
         return (byte)(in ^ engineState[(engineState[x] + engineState[y]) & 0xff]);
     }
 
-    public void processBytes(
+    public void processBytes(   // PRGA y XOR
         byte[]     in, 
         int     inOff, 
         int     len, 
@@ -60,17 +60,17 @@ public class RC4
     {
         if ((inOff + len) > in.length)
         {
-            System.out.println("input buffer too short");
+            System.out.println("Input buffer too short");
         }
 
         if ((outOff + len) > out.length)
         {
-        	System.out.println("output buffer too short");
+        	System.out.println("Output buffer too short");
         }
 
         for (int i = 0; i < len ; i++)
         {
-            x = (x + 1) & 0xff;
+            x = (x + 1) & 0xff;     // & 0xff realiza el mismo efecto que mod 256
             y = (engineState[x] + y) & 0xff;
 
             // SWAP
@@ -79,7 +79,7 @@ public class RC4
             engineState[y] = tmp;
 
             // XOR
-            out[i+outOff] = (byte)(in[i + inOff]
+            out[i+outOff] = (byte)(in[i + inOff]        // XOR con el texto en claro (in) para la obtener el criptograma
                     ^ engineState[(engineState[x] + engineState[y]) & 0xff]);
         }
     }
@@ -91,11 +91,11 @@ public class RC4
 
     // Private implementation
 
-    private void setKey(byte[] keyBytes)
+    private void setKey(byte[] keyBytes)    // Realización del KSA
     {
         workingKey = keyBytes;
 
-        // System.out.println("the key length is ; "+ workingKey.length);
+        // System.out.println("The key length is ; "+ workingKey.length);
 
         x = 0;
         y = 0;
@@ -106,7 +106,7 @@ public class RC4
         }
 
         // Reset the state of the engine
-        for (int i=0; i < STATE_LENGTH; i++)
+        for (int i=0; i < STATE_LENGTH; i++)    // Inicialización del vector S con los valores de 0 a 255 para el desarrollo del KSA
         {
             engineState[i] = (byte)i;
         }
@@ -114,11 +114,11 @@ public class RC4
         int i1 = 0;
         int i2 = 0;
 
-        for (int i=0; i < STATE_LENGTH; i++)
+        for (int i=0; i < STATE_LENGTH; i++)    // Desarrollo del KSA (Key Scheduling Algorithm)
         {
             i2 = ((keyBytes[i1] & 0xff) + engineState[i] + i2) & 0xff;
             // Do the byte-swap inline
-            byte tmp = engineState[i];
+            byte tmp = engineState[i];  // Guarda el valor que esta en la posición i para poder intercambiarlo con el que se encuentra en la posición i2 (Calculada previamente)
             engineState[i] = engineState[i2];
             engineState[i2] = tmp;
             i1 = (i1+1) % keyBytes.length; 
@@ -131,7 +131,7 @@ public class RC4
       String keyword = "Key";
       String texto= "Plaintext";
             
-	  System.out.println("\nBiometr�a y Seguridad de Sistemas");
+	  System.out.println("\nBiometria y Seguridad de Sistemas");
 	  System.out.println("Ejemplo de RC4 v0.1 febrero 2017, LMMB\n");
 	  System.out.print("Introduce la clave (hasta 256 caracteres):");
 	  BufferedReader br = new BufferedReader(new InputStreamReader(System.in));     // Solicitud de la clave
@@ -165,7 +165,7 @@ public class RC4
           System.out.printf("0x%02X",cipher[i]);    // Se muestra el texto cifrado en formato hexadecimal       
       }    
 
-      System.out.prin("\n");
+      System.out.print("\n");
       
       // DESENCRIPTACION
       rc4 = new RC4();
