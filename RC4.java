@@ -7,6 +7,7 @@
 */
 
 import java.io.*;
+import java.util.Scanner;
 
 public class RC4
 {
@@ -58,30 +59,43 @@ public class RC4
         byte[]     out, 
         int     outOff)
     {
-        if ((inOff + len) > in.length)
-        {
-            System.out.println("Input buffer too short");
-        }
+        // if ((inOff + len) > in.length)
+        // {
+        //     System.out.println("Input buffer too short");
+        // }
 
-        if ((outOff + len) > out.length)
-        {
-        	System.out.println("Output buffer too short");
-        }
+        // if ((outOff + len) > out.length)
+        // {
+        // 	System.out.println("Output buffer too short");
+        // }
 
-        for (int i = 0; i < len ; i++)
-        {
-            x = (x + 1) & 0xff;     // & 0xff realiza el mismo efecto que mod 256
-            y = (engineState[x] + y) & 0xff;
+        int i = 0; 
+        int lenKeyStream = 0;
 
-            // SWAP
-            byte tmp = engineState[x];
-            engineState[x] = engineState[y];
-            engineState[y] = tmp;
+        int lengthTextoClaro = 0;
+           
+        do {
+            lenKeyStream = lenKeyStream + len;
 
-            // XOR
-            out[i+outOff] = (byte)(in[i + inOff]        // XOR con el texto en claro (in) para la obtener el criptograma
+            while (i < lenKeyStream && i < in.length) {
+                x = (x + 1) & 0xff;     // & 0xff realiza el mismo efecto que mod 256
+                y = (engineState[x] + y) & 0xff;
+
+                // SWAP
+                byte tmp = engineState[x];
+                engineState[x] = engineState[y];
+                engineState[y] = tmp;
+
+                // XOR
+                out[i+outOff] = (byte)(in[i + inOff]        // XOR con el texto en claro (in) para la obtener el criptograma
                     ^ engineState[(engineState[x] + engineState[y]) & 0xff]);
-        }
+
+                lengthTextoClaro++;
+                
+                i++;
+            }
+        } while (lengthTextoClaro > lenKeyStream);
+        
     }
 
     public void reset()
@@ -130,15 +144,19 @@ public class RC4
 	
       String keyword = "Key";
       String texto= "Plaintext";
+      int tamañoUsuario = 0;
             
 	  System.out.println("\nBiometria y Seguridad de Sistemas");
 	  System.out.println("Ejemplo de RC4 v0.1 febrero 2017, LMMB\n");
 	  System.out.print("Introduce la clave (hasta 256 caracteres):");
 	  BufferedReader br = new BufferedReader(new InputStreamReader(System.in));     // Solicitud de la clave
-	  keyword = br.readLine();
-	  
+      keyword = br.readLine();
+
 	  System.out.print("\nIntroduce el texto a cifrar:");
-	  texto = br.readLine();    // Lectura del texto introducido
+      texto = br.readLine();    // Lectura del texto introducido
+      
+      System.out.println("Tamaño del KeyStream: ");
+      tamañoUsuario = br.read();
 	  
       byte[] keytest = keyword.getBytes(); // Convertir clave en bytes
 
@@ -158,7 +176,7 @@ public class RC4
       // ENCRIPTACION
       RC4 rc4 = new RC4();
       rc4.init(keytest);
-      rc4.processBytes(text,0,text.length,cipher,0);
+      rc4.processBytes(text,0,tamañoUsuario,cipher,0);
 
       System.out.print("\n Cipher text:   ");
       for (int i = 0; i < cipher.length; i++) {          
